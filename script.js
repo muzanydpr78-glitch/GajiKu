@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Konfigurasi URL Backend GAS ---
-    // Ganti URL di bawah ini dengan URL Web App (berakhir dengan /exec) dari Google Apps Script Anda
-    const API_URL = "https://script.google.com/macros/s/AKfycbwVq5FGY_4OC03WxvW4arPwC_EuHaUtLNjqsaNbJBJSybzc3Z8QWZ03d5AEPd3B9ui8/exec";
+    // Pastikan URL Web App (berakhir dengan /exec) Anda tempelkan di sini
+    const API_URL = "URL_WEB_APP_ANDA_DISINI";
 
     // --- Elements ---
     const landingPage = document.getElementById('landing-page');
@@ -52,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnStart) {
         btnStart.addEventListener('click', () => {
+            localStorage.setItem("user_id", "USR_GUEST");
+            localStorage.setItem("user_name", "Guest");
             landingPage.classList.remove('active');
             landingPage.classList.add('hidden');
             mainApp.classList.remove('hidden');
@@ -100,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (result.status === "success") {
                     localStorage.setItem("user_id", result.user_id);
-                    localStorage.setItem("user_name", result.name);
+                    localStorage.setItem("user_name", result.name || name);
 
                     authPage.classList.remove('active');
                     authPage.classList.add('hidden');
@@ -120,8 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnGoogleLogin) {
         btnGoogleLogin.addEventListener('click', () => {
-            // Simulasi Google Sign-In sukses masuk ke App
             localStorage.setItem("user_id", "USR_GOOGLE_" + Date.now());
+            localStorage.setItem("user_name", "Google User");
             authPage.classList.remove('active');
             authPage.classList.add('hidden');
             mainApp.classList.remove('hidden');
@@ -264,4 +266,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const backToSettingProfile = document.getElementById('back-to-setting-profile');
     if (backToSettingProfile) backToSettingProfile.addEventListener('click', () => document.querySelector('[data-target="setting"]').click());
+
+    // --- Dynamic Add Allocation Row Feature ---
+    const btnAddAllocation = document.querySelector('#sub-salary-setup .btn-secondary');
+    const allocationGroup = document.querySelector('.allocation-group');
+
+    if (btnAddAllocation && allocationGroup) {
+        btnAddAllocation.addEventListener('click', () => {
+            const newRow = document.createElement('div');
+            newRow.className = 'alloc-row mt-10';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Nama Alokasi" class="alloc-input">
+                <input type="number" placeholder="Nominal (Rp)" class="alloc-input">
+            `;
+            allocationGroup.appendChild(newRow);
+        });
+    }
 });
