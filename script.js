@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Konfigurasi URL Backend GAS ---
-    const API_URL = "URL_WEB_APP_ANDA_DISINI";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwVq5FGY_4OC03WxvW4arPwC_EuHaUtLNjqsaNbJBJSybzc3Z8QWZ03d5AEPd3B9ui8/exec";
 
     // --- Elements ---
     const landingPage = document.getElementById('landing-page');
