@@ -30,25 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isRegisterMode = false;
     let globalReportData = { daily_transactions: {} };
-    let selectedDateKey = "2026-09-10"; // Default tanggal uji coba aktif
+    let selectedDateKey = "2026-09-10";
 
     const initApp = () => {
         const userId = localStorage.getItem("user_id");
         if (userId) {
-            landingPage.classList.remove('active', 'hidden');
-            landingPage.classList.add('hidden');
-            authPage.classList.remove('active', 'hidden');
-            authPage.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-            mainApp.classList.add('active');
+            landingPage.classList.remove('active', 'hidden'); landingPage.classList.add('hidden');
+            authPage.classList.remove('active', 'hidden'); authPage.classList.add('hidden');
+            mainApp.classList.remove('hidden'); mainApp.classList.add('active');
             fetchDashboardData();
         } else {
-            landingPage.classList.remove('hidden');
-            landingPage.classList.add('active');
-            authPage.classList.remove('active', 'hidden');
-            authPage.classList.add('hidden');
-            mainApp.classList.remove('active', 'hidden');
-            mainApp.classList.add('hidden');
+            landingPage.classList.remove('hidden'); landingPage.classList.add('active');
+            authPage.classList.remove('active', 'hidden'); authPage.classList.add('hidden');
+            mainApp.classList.remove('active', 'hidden'); mainApp.classList.add('hidden');
         }
     };
     initApp();
@@ -78,10 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (menuLogout) {
-        menuLogout.addEventListener('click', () => {
-            localStorage.clear();
-            initApp();
-        });
+        menuLogout.addEventListener('click', () => { localStorage.clear(); initApp(); });
     }
 
     if (toggleAuthMode) {
@@ -135,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Ambil Data Kalkulasi & Laporan dari Backend ---
     async function fetchDashboardData() {
         const userId = localStorage.getItem("user_id");
         if (!userId) return;
@@ -145,10 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === "success") {
-                // Update UI Dashboard Utama
                 document.getElementById('display-daily-budget').textContent = `Rp ${result.daily_budget.toLocaleString('id-ID')}`;
                 document.getElementById('display-total-expense').textContent = `Rp ${result.total_expense.toLocaleString('id-ID')}`;
                 document.getElementById('display-total-balance').textContent = `Rp ${result.total_balance.toLocaleString('id-ID')}`;
+                
+                // Update countdown hari menuju gajian jika ada elemennya
+                const countdownEl = document.querySelector('.payday-countdown');
+                if (countdownEl) countdownEl.textContent = `${result.remaining_days} Hari menuju gajian`;
 
                 globalReportData = result;
                 renderTransactionsForDate(selectedDateKey);
@@ -158,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Render Transaksi ke Riwayat Berdasarkan Tanggal yang Dipilih ---
     function renderTransactionsForDate(dateKey) {
         const txs = globalReportData.daily_transactions[dateKey] || [];
         selectedDateLabel.textContent = `${dateKey}`;
@@ -183,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dailyTxList.innerHTML = html;
     }
 
-    // --- Navigasi Tab ---
     navItems.forEach(nav => {
         nav.addEventListener('click', (e) => {
             e.preventDefault();
@@ -197,27 +188,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeTab.classList.remove('hidden');
                 void activeTab.offsetWidth;
                 activeTab.classList.add('active');
-                if (targetId === 'report' || targetId === 'home') {
-                    fetchDashboardData();
-                }
+                if (targetId === 'report' || targetId === 'home') fetchDashboardData();
             }
         });
     });
 
-    // --- Interaksi Klik Kalender ---
     calDays.forEach(day => {
         day.addEventListener('click', () => {
             if (day.classList.contains('other-month')) return;
             calDays.forEach(d => d.classList.remove('active-date'));
             day.classList.add('active-date');
-            
             const dayNum = day.getAttribute('data-date').padStart(2, '0');
             selectedDateKey = `2026-09-${dayNum}`;
             renderTransactionsForDate(selectedDateKey);
         });
     });
 
-    // --- Modal Pengeluaran ---
     const openModal = () => { overlay.classList.add('active'); expenseModal.classList.add('active'); };
     const closeModal = () => { overlay.classList.remove('active'); expenseModal.classList.remove('active'); };
     if (fabAdd) fabAdd.addEventListener('click', openModal);
@@ -232,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     let selectedCategory = "Makan";
 
-    // --- Simpan Pengeluaran & Refresh Otomatis ---
     if (btnSaveExpense) {
         btnSaveExpense.addEventListener('click', async () => {
             const amount = document.getElementById('expense-amount').value;
@@ -247,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 amount: parseFloat(amount),
                 category: selectedCategory,
                 note: note,
-                date: selectedDateKey // Sesuai tanggal kalender yang aktif diklik
+                date: selectedDateKey
             };
 
             try {
@@ -264,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('expense-amount').value = "";
                     document.getElementById('expense-note').value = "";
                     alert(result.message);
-                    fetchDashboardData(); // Refresh otomatis kalkulasi & kalender
+                    fetchDashboardData();
                 } else {
                     alert(result.message);
                 }
@@ -277,7 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Navigasi Sub-View (Setup Gaji & Alokasi) ---
     const showSubView = (subViewId) => {
         tabContents.forEach(tab => { tab.classList.add('hidden'); tab.classList.remove('active'); });
         const targetSub = document.getElementById(subViewId);
@@ -289,22 +273,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToSetting = document.getElementById('back-to-setting');
     if (backToSetting) backToSetting.addEventListener('click', () => document.querySelector('[data-target="setting"]').click());
 
-    // --- Simpan Setup Gaji ---
+    // --- Dynamic Add Allocation Row ---
+    const btnAddAllocation = document.querySelector('#sub-salary-setup .btn-secondary');
+    const allocationGroup = document.querySelector('.allocation-group');
+
+    if (btnAddAllocation && allocationGroup) {
+        btnAddAllocation.addEventListener('click', () => {
+            const newRow = document.createElement('div');
+            newRow.className = 'alloc-row mt-10';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Nama Alokasi" class="alloc-input">
+                <input type="number" placeholder="Nominal (Rp)" class="alloc-input">
+            `;
+            allocationGroup.appendChild(newRow);
+        });
+    }
+
+    // --- Simpan Setup Gaji & Semua Alokasi Dinamis ke Backend ---
     const btnSaveSalary = document.querySelector('#sub-salary-setup .btn-primary');
     if (btnSaveSalary) {
         btnSaveSalary.addEventListener('click', async () => {
             const salaryInput = document.querySelector('#sub-salary-setup input[type="number"]');
-            const amount = salaryInput ? salaryInput.value : 0;
+            const paydayInput = document.querySelector('#sub-salary-setup input[type="date"]');
+            
+            const totalIncome = salaryInput ? parseFloat(salaryInput.value) : 0;
+            const paydayDate = paydayInput ? paydayInput.value : new Date().toISOString().split('T')[0];
             const userId = localStorage.getItem("user_id");
 
-            if (!amount || amount <= 0) { alert("Masukkan nominal gaji dengan benar!"); return; }
+            if (!totalIncome || totalIncome <= 0) { alert("Masukkan nominal gaji dengan benar!"); return; }
+
+            // Ambil semua baris alokasi dinamis yang diisi user
+            const allocRows = document.querySelectorAll('.alloc-row');
+            let allocations = [];
+            allocRows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const name = inputs[0] ? inputs[0].value.trim() : "";
+                const amount = inputs[1] ? parseFloat(inputs[1].value) || 0 : 0;
+                if (name && amount > 0) {
+                    allocations.push({ name: name, amount: amount });
+                }
+            });
+
+            const payload = {
+                action: "save_income",
+                user_id: userId,
+                total_income: totalIncome,
+                payday_date: paydayDate,
+                allocations: allocations
+            };
 
             try {
                 btnSaveSalary.textContent = "Menyimpan...";
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ action: "save_income", user_id: userId, amount: parseFloat(amount), date: new Date().toISOString().split('T')[0] })
+                    body: JSON.stringify(payload)
                 });
                 const result = await response.json();
                 if (result.status === "success") {
@@ -315,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert(result.message);
                 }
             } catch (error) {
-                console.error("Salary Error:", error);
+                console.error("Salary Setup Error:", error);
                 alert("Koneksi gagal.");
             } finally {
                 btnSaveSalary.textContent = "Simpan Perubahan";
