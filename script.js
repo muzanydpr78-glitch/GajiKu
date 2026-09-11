@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Konfigurasi URL Backend GAS ---
-    // Pastikan URL Web App (berakhir dengan /exec) Anda tempelkan di sini
     const API_URL = "URL_WEB_APP_ANDA_DISINI";
 
     // --- Elements ---
@@ -16,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerFields = document.getElementById('register-fields');
     const btnAuthSubmit = document.getElementById('btn-auth-submit');
     const btnGoogleLogin = document.getElementById('btn-google-login');
+    const menuLogout = document.getElementById('menu-logout');
 
     const navItems = document.querySelectorAll('.nav-item');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -30,6 +30,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedDateLabel = document.getElementById('selected-date-label');
 
     let isRegisterMode = false;
+
+    // --- Pastikan Saat Pertama Buka Selalu di Landing Page (Bukan Main App) ---
+    const initApp = () => {
+        landingPage.classList.remove('hidden');
+        landingPage.classList.add('active');
+        authPage.classList.remove('active');
+        authPage.classList.add('hidden');
+        mainApp.classList.remove('active');
+        mainApp.classList.add('hidden');
+    };
+    initApp();
 
     // --- Navigation Flow (Landing to Auth / Guest) ---
     if (btnToLogin) {
@@ -58,6 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
             landingPage.classList.add('hidden');
             mainApp.classList.remove('hidden');
             mainApp.classList.add('active');
+        });
+    }
+
+    // --- Logout Feature ---
+    if (menuLogout) {
+        menuLogout.addEventListener('click', () => {
+            localStorage.clear();
+            initApp();
         });
     }
 
@@ -102,8 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (result.status === "success") {
                     localStorage.setItem("user_id", result.user_id);
-                    localStorage.setItem("user_name", result.name || name);
-
+                    localStorage.setItem("user_name", result.name || name || "Muz");
+                    
                     authPage.classList.remove('active');
                     authPage.classList.add('hidden');
                     mainApp.classList.remove('hidden');
@@ -123,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnGoogleLogin) {
         btnGoogleLogin.addEventListener('click', () => {
             localStorage.setItem("user_id", "USR_GOOGLE_" + Date.now());
-            localStorage.setItem("user_name", "Google User");
+            localStorage.setItem("user_name", "Muz");
             authPage.classList.remove('active');
             authPage.classList.add('hidden');
             mainApp.classList.remove('hidden');
