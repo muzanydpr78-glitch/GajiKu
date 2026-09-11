@@ -30,11 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRegisterMode = false;
     let globalReportData = { daily_transactions: {}, daily_budget: 0 };
     
-    // Inisialisasi default tanggal hari ini format YYYY-MM-DD
+    // Inisialisasi default ke Tanggal Hari Ini (Real-time)
     const todayObj = new Date();
     const currentYear = todayObj.getFullYear();
     const currentMonthNum = String(todayObj.getMonth() + 1).padStart(2, '0');
     const currentDayNum = String(todayObj.getDate()).padStart(2, '0');
+    
+    // selectedDateKey default menunjuk ke hari ini
     let selectedDateKey = `${currentYear}-${currentMonthNum}-${currentDayNum}`;
 
     const initApp = () => {
@@ -155,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 globalReportData = result;
                 
-                // Render ulang kalender interaktif dengan data terbaru dari backend
                 renderInteractiveCalendar(result.daily_transactions, result.daily_budget);
                 renderTransactionsForDate(selectedDateKey);
             }
@@ -164,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- FITUR TAHAP 3: RENDER STATUS KALENDER HISTORIS PER HARI ---
+    // Render Status Kalender & Otomatis Sorot Tanggal Hari Ini
     function renderInteractiveCalendar(dailyTransactions, dailyBudget) {
         calDays.forEach(dayEl => {
             const dayAttr = dayEl.getAttribute('data-date');
@@ -173,24 +174,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayNumStr = dayAttr.padStart(2, '0');
             const dateKey = `${currentYear}-${currentMonthNum}-${dayNumStr}`;
 
-            // Reset kelas status sebelumnya
             dayEl.classList.remove('safe', 'danger', 'active-date');
 
-            // Tandai tanggal yang sedang aktif dipilih
+            // Secara default/otomatis sorot tanggal hari ini di kalender
             if (dateKey === selectedDateKey) {
                 dayEl.classList.add('active-date');
             }
 
-            // Periksa apakah ada pengeluaran di tanggal ini
             const dayRecord = dailyTransactions[dateKey];
             if (dayRecord && dayRecord.total_amount > 0) {
                 const totalSpent = dayRecord.total_amount;
-                
-                // Logika Penentuan Status Harian (Aman vs Over Budget)
                 if (dailyBudget > 0 && totalSpent > dailyBudget) {
-                    dayEl.classList.add('danger'); // Merah (Over Budget terkunci di hari ini)
+                    dayEl.classList.add('danger'); // Merah (Over Budget)
                 } else {
-                    dayEl.classList.add('safe');   // Hijau (Safe / Under Budget)
+                    dayEl.classList.add('safe');   // Hijau (Safe)
                 }
             }
         });
@@ -242,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Interaksi Klik Kalender Harian
+    // Interaksi Klik Kalender Harian (User bisa melihat historis tanggal lain jika diklik)
     calDays.forEach(day => {
         day.addEventListener('click', () => {
             if (day.classList.contains('other-month')) return;
@@ -279,13 +276,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!amount) { alert("Masukkan nominal pengeluaran!"); return; }
 
+            // REVISI UTAMA: Tanggal pengeluaran SELALU mengikuti hari ini (real-time), 
+            // terlepas tanggal berapa yang sedang disorot/diklik user di kalender.
+            const todayDateKey = `${currentYear}-${currentMonthNum}-${currentDayNum}`;
+
             const payload = {
                 action: "add_expense",
                 user_id: userId,
                 amount: parseFloat(amount),
                 category: selectedCategory,
                 note: note,
-                date: selectedDateKey // Menyimpan sesuai tanggal kalender yang sedang dipilih/diklik user
+                date: todayDateKey 
             };
 
             try {
@@ -302,7 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('expense-amount').value = "";
                     document.getElementById('expense-note').value = "";
                     alert(result.message);
-                    fetchDashboardData(); // Memperbarui dashboard & warna kalender secara real-time
+                    
+                    // Kembalikan selectedDateKey menyorot hari ini agar langsung terlihat di kalender & list
+                    selectedDateKey = todayDateKey;
+                    fetchDashboardData();
                 } else {
                     alert(result.message);
                 }
