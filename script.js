@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- API Integration: Save Expense (Fixed with Proper Request Body) ---
+    // --- API Integration: Save Expense with Validation ---
     if (btnSaveExpense) {
         btnSaveExpense.addEventListener('click', async () => {
             const amount = document.getElementById('expense-amount').value;
@@ -242,15 +242,61 @@ document.addEventListener('DOMContentLoaded', () => {
                     closeModal();
                     document.getElementById('expense-amount').value = "";
                     document.getElementById('expense-note').value = "";
-                    alert("Pengeluaran berhasil dicatat secara privat!");
+                    alert(result.message);
                 } else {
-                    alert(result.message || "Gagal menyimpan pengeluaran.");
+                    // Notifikasi penolakan jika belum setup gaji
+                    alert(result.message);
                 }
             } catch (error) {
                 console.error("Error Expense:", error);
                 alert("Koneksi ke backend gagal.");
             } finally {
                 btnSaveExpense.textContent = "Simpan";
+            }
+        });
+    }
+
+    // --- API Integration: Save Salary Setup ---
+    const btnSaveSalary = document.querySelector('#sub-salary-setup .btn-primary');
+    if (btnSaveSalary) {
+        btnSaveSalary.addEventListener('click', async () => {
+            const salaryInput = document.querySelector('#sub-salary-setup input[type="number"]');
+            const amount = salaryInput ? salaryInput.value : 0;
+            const userId = localStorage.getItem("user_id") || "USR_GUEST";
+
+            if (!amount || amount <= 0) {
+                alert("Masukkan nominal gaji/pendapatan dengan benar!");
+                return;
+            }
+
+            const payload = {
+                action: "save_income",
+                user_id: userId,
+                amount: parseFloat(amount),
+                type: "Gaji Bulanan",
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            try {
+                btnSaveSalary.textContent = "Menyimpan...";
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    alert(result.message);
+                    document.querySelector('[data-target="setting"]').click(); // Kembali ke setting
+                } else {
+                    alert(result.message || "Gagal menyimpan setup gaji.");
+                }
+            } catch (error) {
+                console.error("Error Salary:", error);
+                alert("Koneksi ke backend gagal.");
+            } finally {
+                btnSaveSalary.textContent = "Simpan Perubahan";
             }
         });
     }
