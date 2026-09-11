@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleAuthMode = document.getElementById('toggle-auth-mode');
     const registerFields = document.getElementById('register-fields');
     const btnAuthSubmit = document.getElementById('btn-auth-submit');
-    const btnGoogleLogin = document.getElementById('btn-google-login');
     const menuLogout = document.getElementById('menu-logout');
 
     const navItems = document.querySelectorAll('.nav-item');
@@ -29,8 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const dailyTxList = document.getElementById('daily-transaction-list');
 
     let isRegisterMode = false;
-    let globalReportData = { daily_transactions: {} };
-    let selectedDateKey = "2026-09-10";
+    let globalReportData = { daily_transactions: {}, daily_budget: 0 };
+    
+    // Inisialisasi default tanggal hari ini format YYYY-MM-DD
+    const todayObj = new Date();
+    const currentYear = todayObj.getFullYear();
+    const currentMonthNum = String(todayObj.getMonth() + 1).padStart(2, '0');
+    const currentDayNum = String(todayObj.getDate()).padStart(2, '0');
+    let selectedDateKey = `${currentYear}-${currentMonthNum}-${currentDayNum}`;
 
     const initApp = () => {
         const userId = localStorage.getItem("user_id");
@@ -138,12 +143,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('display-daily-budget').textContent = `Rp ${result.daily_budget.toLocaleString('id-ID')}`;
                 document.getElementById('display-total-expense').textContent = `Rp ${result.total_expense.toLocaleString('id-ID')}`;
                 document.getElementById('display-total-balance').textContent = `Rp ${result.total_balance.toLocaleString('id-ID')}`;
-                
-                // Update countdown hari menuju gajian jika ada elemennya
+
                 const countdownEl = document.querySelector('.payday-countdown');
-                if (countdownEl) countdownEl.textContent = `${result.remaining_days} Hari menuju gajian`;
+                if (countdownEl) {
+                    if (result.remaining_days > 0) {
+                        countdownEl.textContent = `${result.remaining_days} Hari menuju gajian`;
+                    } else {
+                        countdownEl.textContent = `Atur tanggal gajian terlebih dahulu`;
+                    }
+                }
 
                 globalReportData = result;
+                
+                // Render ulang kalender interaktif dengan data terbaru dari backend
+                renderInteractiveCalendar(result.daily_transactions, result.daily_budget);
                 renderTransactionsForDate(selectedDateKey);
             }
         } catch (error) {
@@ -151,9 +164,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- FITUR TAHAP 3: RENDER STATUS KALENDER HISTORIS PER HARI ---
+    function renderInteractiveCalendar(dailyTransactions, dailyBudget) {
+        calDays.forEach(dayEl => {
+            const dayAttr = dayEl.getAttribute('data-date');
+            if (!dayAttr || dayEl.classList.contains('other-month')) return;
+
+            const dayNumStr = dayAttr.padStart(2, '0');
+            const dateKey = `${currentYear}-${currentMonthNum}-${dayNumStr}`;
+
+            // Reset kelas status sebelumnya
+            dayEl.classList.remove('safe', 'danger', 'active-date');
+
+            // Tandai tanggal yang sedang aktif dipilih
+            if (dateKey === selectedDateKey) {
+                dayEl.classList.add('active-date');
+            }
+
+            // Periksa apakah ada pengeluaran di tanggal ini
+            const dayRecord = dailyTransactions[dateKey];
+            if (dayRecord && dayRecord.total_amount > 0) {
+                const totalSpent = dayRecord.total_amount;
+                
+                // Logika Penentuan Status Harian (Aman vs Over Budget)
+                if (dailyBudget > 0 && totalSpent > dailyBudget) {
+                    dayEl.classList.add('danger'); // Merah (Over Budget terkunci di hari ini)
+                } else {
+                    dayEl.classList.add('safe');   // Hijau (Safe / Under Budget)
+                }
+            }
+        });
+    }
+
     function renderTransactionsForDate(dateKey) {
-        const txs = globalReportData.daily_transactions[dateKey] || [];
-        selectedDateLabel.textContent = `${dateKey}`;
+        const dayRecord = globalReportData.daily_transactions[dateKey];
+        const txs = dayRecord ? dayRecord.items : [];
+        
+        if (selectedDateLabel) {
+            selectedDateLabel.textContent = `${dateKey}`;
+        }
 
         if (txs.length === 0) {
             dailyTxList.innerHTML = `<div class="glass-panel" style="padding: 24px; text-align: center;"><p class="text-muted text-sm">Belum ada transaksi di tanggal ini.</p></div>`;
@@ -168,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <strong style="display: block; font-size: 14px; color: var(--text-main);">${tx.category}</strong>
                         <span style="font-size: 12px; color: var(--text-muted);">${tx.note || 'Tanpa catatan'}</span>
                     </div>
-                    <span style="font-weight: 700; color: #e74c3c;">- Rp ${tx.amount.toLocaleString('id-ID')}</span>
+                    <span style="font-weight: 700; color: var(--danger-red);">- Rp ${tx.amount.toLocaleString('id-ID')}</span>
                 </div>
             `;
         });
@@ -193,13 +242,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Interaksi Klik Kalender Harian
     calDays.forEach(day => {
         day.addEventListener('click', () => {
             if (day.classList.contains('other-month')) return;
+            
             calDays.forEach(d => d.classList.remove('active-date'));
             day.classList.add('active-date');
+
             const dayNum = day.getAttribute('data-date').padStart(2, '0');
-            selectedDateKey = `2026-09-${dayNum}`;
+            selectedDateKey = `${currentYear}-${currentMonthNum}-${dayNum}`;
+            
             renderTransactionsForDate(selectedDateKey);
         });
     });
@@ -209,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fabAdd) fabAdd.addEventListener('click', openModal);
     if (overlay) overlay.addEventListener('click', closeModal);
 
+    let selectedCategory = "Makan";
     catItems.forEach(item => {
         item.addEventListener('click', () => {
             catItems.forEach(c => c.classList.remove('active'));
@@ -216,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedCategory = item.textContent.trim().replace(/[^a-zA-Z]/g, "");
         });
     });
-    let selectedCategory = "Makan";
 
     if (btnSaveExpense) {
         btnSaveExpense.addEventListener('click', async () => {
@@ -232,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 amount: parseFloat(amount),
                 category: selectedCategory,
                 note: note,
-                date: selectedDateKey
+                date: selectedDateKey // Menyimpan sesuai tanggal kalender yang sedang dipilih/diklik user
             };
 
             try {
@@ -249,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('expense-amount').value = "";
                     document.getElementById('expense-note').value = "";
                     alert(result.message);
-                    fetchDashboardData();
+                    fetchDashboardData(); // Memperbarui dashboard & warna kalender secara real-time
                 } else {
                     alert(result.message);
                 }
@@ -273,7 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToSetting = document.getElementById('back-to-setting');
     if (backToSetting) backToSetting.addEventListener('click', () => document.querySelector('[data-target="setting"]').click());
 
-    // --- Dynamic Add Allocation Row ---
     const btnAddAllocation = document.querySelector('#sub-salary-setup .btn-secondary');
     const allocationGroup = document.querySelector('.allocation-group');
 
@@ -289,20 +341,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Simpan Setup Gaji & Semua Alokasi Dinamis ke Backend ---
     const btnSaveSalary = document.querySelector('#sub-salary-setup .btn-primary');
     if (btnSaveSalary) {
         btnSaveSalary.addEventListener('click', async () => {
             const salaryInput = document.querySelector('#sub-salary-setup input[type="number"]');
             const paydayInput = document.querySelector('#sub-salary-setup input[type="date"]');
-            
+
             const totalIncome = salaryInput ? parseFloat(salaryInput.value) : 0;
             const paydayDate = paydayInput ? paydayInput.value : new Date().toISOString().split('T')[0];
             const userId = localStorage.getItem("user_id");
 
             if (!totalIncome || totalIncome <= 0) { alert("Masukkan nominal gaji dengan benar!"); return; }
 
-            // Ambil semua baris alokasi dinamis yang diisi user
             const allocRows = document.querySelectorAll('.alloc-row');
             let allocations = [];
             allocRows.forEach(row => {
