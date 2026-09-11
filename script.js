@@ -139,15 +139,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === "success") {
+                // --- DINAMIKA ANGKA BUDGET HARI INI (BISA MINUS) ---
                 const dailyBudgetEl = document.getElementById('display-daily-budget');
-const currentDailyVal = result.daily_budget;
-dailyBudgetEl.textContent = `Rp ${currentDailyVal.toLocaleString('id-ID')}`;
+                const currentDailyVal = result.daily_budget;
+                
+                if (currentDailyVal < 0) {
+                    dailyBudgetEl.textContent = `-Rp ${Math.abs(currentDailyVal).toLocaleString('id-ID')}`;
+                    dailyBudgetEl.className = "budget-amount danger-text"; // Berubah merah jika minus
+                } else {
+                    dailyBudgetEl.textContent = `Rp ${currentDailyVal.toLocaleString('id-ID')}`;
+                    dailyBudgetEl.className = "budget-amount safe-text";   // Hijau jika masih aman
+                }
 
-if (currentDailyVal < 0) {
-    dailyBudgetEl.className = "budget-amount danger-text"; // Berubah merah jika minus
-} else {
-    dailyBudgetEl.className = "budget-amount safe-text";   // Hijau jika masih aman
-}
                 document.getElementById('display-total-expense').textContent = `Rp ${result.total_expense.toLocaleString('id-ID')}`;
                 document.getElementById('display-total-balance').textContent = `Rp ${result.total_balance.toLocaleString('id-ID')}`;
 
@@ -160,7 +163,7 @@ if (currentDailyVal < 0) {
                     }
                 }
 
-                // --- KONTROL BANNER STATUS HARIAN DI DASHBOARD (TAHAP 4) ---
+                // --- KONTROL BANNER STATUS HARIAN DI DASHBOARD ---
                 const statusBanner = document.getElementById('today-status-banner');
                 if (statusBanner) {
                     if (result.today_over_amount > 0) {
@@ -181,7 +184,7 @@ if (currentDailyVal < 0) {
                 }
 
                 globalReportData = result;
-                renderInteractiveCalendar(result.daily_transactions, result.daily_budget);
+                renderInteractiveCalendar(result.daily_transactions, result.base_daily_budget);
                 renderTransactionsForDate(selectedDateKey);
             }
         } catch (error) {
@@ -189,7 +192,7 @@ if (currentDailyVal < 0) {
         }
     }
 
-    function renderInteractiveCalendar(dailyTransactions, dailyBudget) {
+    function renderInteractiveCalendar(dailyTransactions, baseDailyBudget) {
         calDays.forEach(dayEl => {
             const dayAttr = dayEl.getAttribute('data-date');
             if (!dayAttr || dayEl.classList.contains('other-month')) return;
@@ -206,7 +209,7 @@ if (currentDailyVal < 0) {
             const dayRecord = dailyTransactions[dateKey];
             if (dayRecord && dayRecord.total_amount > 0) {
                 const totalSpent = dayRecord.total_amount;
-                if (dailyBudget > 0 && totalSpent > dailyBudget) {
+                if (baseDailyBudget > 0 && totalSpent > baseDailyBudget) {
                     dayEl.classList.add('danger');
                 } else {
                     dayEl.classList.add('safe');
