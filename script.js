@@ -139,16 +139,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === "success") {
-                // --- DINAMIKA ANGKA BUDGET HARI INI (BISA MINUS) ---
                 const dailyBudgetEl = document.getElementById('display-daily-budget');
                 const currentDailyVal = result.daily_budget;
                 
                 if (currentDailyVal < 0) {
                     dailyBudgetEl.textContent = `-Rp ${Math.abs(currentDailyVal).toLocaleString('id-ID')}`;
-                    dailyBudgetEl.className = "budget-amount danger-text"; // Berubah merah jika minus
+                    dailyBudgetEl.className = "budget-amount danger-text";
                 } else {
                     dailyBudgetEl.textContent = `Rp ${currentDailyVal.toLocaleString('id-ID')}`;
-                    dailyBudgetEl.className = "budget-amount safe-text";   // Hijau jika masih aman
+                    dailyBudgetEl.className = "budget-amount safe-text";
                 }
 
                 document.getElementById('display-total-expense').textContent = `Rp ${result.total_expense.toLocaleString('id-ID')}`;
@@ -163,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // --- KONTROL BANNER STATUS HARIAN DI DASHBOARD ---
                 const statusBanner = document.getElementById('today-status-banner');
                 if (statusBanner) {
                     if (result.today_over_amount > 0) {
@@ -192,32 +190,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- RENDER KALENDER DENGAN PAKSAAN GAYA LANGSUNG (INLINE OVERRIDE) ---
     function renderInteractiveCalendar(dailyTransactions, baseDailyBudget) {
         calDays.forEach(dayEl => {
-            const dayAttr = dayEl.getAttribute('data-date');
+            const dayAttr = dayEl.getAttribute('data-date') || dayEl.textContent.trim();
             if (!dayAttr || dayEl.classList.contains('other-month')) return;
 
             const dayNumStr = dayAttr.padStart(2, '0');
             const dateKey = `${currentYear}-${currentMonthNum}-${dayNumStr}`;
 
-            // Bersihkan kelas status sebelumnya
+            // Reset kelas dan gaya inline
             dayEl.classList.remove('safe', 'danger', 'active-date');
+            dayEl.style.backgroundColor = "";
+            dayEl.style.color = "";
+            dayEl.style.borderColor = "";
 
-            // Tandai tanggal yang sedang aktif dipilih
             if (dateKey === selectedDateKey) {
                 dayEl.classList.add('active-date');
             }
 
-            // Periksa apakah ada pengeluaran di tanggal ini
             const dayRecord = dailyTransactions[dateKey];
             if (dayRecord && dayRecord.total_amount > 0) {
                 const totalSpent = dayRecord.total_amount;
                 
-                // Validasi tegas: Jika pengeluaran > base daily budget, wajib WARNA MERAH (danger)
+                // Jika over budget, paksa warna merah menyala secara inline agar tidak tertimpa CSS lain
                 if (baseDailyBudget > 0 && totalSpent > baseDailyBudget) {
                     dayEl.classList.add('danger');
+                    dayEl.style.backgroundColor = "rgba(248, 113, 113, 0.25)";
+                    dayEl.style.color = "#F87171";
+                    dayEl.style.border = "1px solid rgba(248, 113, 113, 0.5)";
                 } else {
                     dayEl.classList.add('safe');
+                    dayEl.style.backgroundColor = "rgba(52, 211, 153, 0.15)";
+                    dayEl.style.color = "#34D399";
+                    dayEl.style.border = "1px solid rgba(52, 211, 153, 0.3)";
                 }
             }
         });
@@ -276,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
             calDays.forEach(d => d.classList.remove('active-date'));
             day.classList.add('active-date');
 
-            const dayNum = day.getAttribute('data-date').padStart(2, '0');
+            const dayNum = (day.getAttribute('data-date') || day.textContent.trim()).padStart(2, '0');
             selectedDateKey = `${currentYear}-${currentMonthNum}-${dayNum}`;
             
             renderTransactionsForDate(selectedDateKey);
