@@ -30,13 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRegisterMode = false;
     let globalReportData = { daily_transactions: {}, daily_budget: 0 };
     
-    // Inisialisasi default ke Tanggal Hari Ini (Real-time)
     const todayObj = new Date();
     const currentYear = todayObj.getFullYear();
     const currentMonthNum = String(todayObj.getMonth() + 1).padStart(2, '0');
     const currentDayNum = String(todayObj.getDate()).padStart(2, '0');
-    
-    // selectedDateKey default menunjuk ke hari ini
     let selectedDateKey = `${currentYear}-${currentMonthNum}-${currentDayNum}`;
 
     const initApp = () => {
@@ -155,8 +152,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
+                // --- KONTROL BANNER STATUS HARIAN DI DASHBOARD (TAHAP 4) ---
+                const statusBanner = document.getElementById('today-status-banner');
+                if (statusBanner) {
+                    if (result.today_over_amount > 0) {
+                        statusBanner.style.display = "block";
+                        statusBanner.className = "glass-panel danger-text";
+                        statusBanner.style.background = "rgba(248, 113, 113, 0.15)";
+                        statusBanner.style.borderColor = "rgba(248, 113, 113, 0.3)";
+                        statusBanner.innerHTML = `⚠️ Anda over budget hari ini senilai Rp ${result.today_over_amount.toLocaleString('id-ID')}`;
+                    } else if (result.today_surplus_amount > 0) {
+                        statusBanner.style.display = "block";
+                        statusBanner.className = "glass-panel safe-text";
+                        statusBanner.style.background = "rgba(52, 211, 153, 0.15)";
+                        statusBanner.style.borderColor = "rgba(52, 211, 153, 0.3)";
+                        statusBanner.innerHTML = `✨ Kerja bagus! Surplus hari ini Rp ${result.today_surplus_amount.toLocaleString('id-ID')}`;
+                    } else {
+                        statusBanner.style.display = "none";
+                    }
+                }
+
                 globalReportData = result;
-                
                 renderInteractiveCalendar(result.daily_transactions, result.daily_budget);
                 renderTransactionsForDate(selectedDateKey);
             }
@@ -165,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Render Status Kalender & Otomatis Sorot Tanggal Hari Ini
     function renderInteractiveCalendar(dailyTransactions, dailyBudget) {
         calDays.forEach(dayEl => {
             const dayAttr = dayEl.getAttribute('data-date');
@@ -176,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             dayEl.classList.remove('safe', 'danger', 'active-date');
 
-            // Secara default/otomatis sorot tanggal hari ini di kalender
             if (dateKey === selectedDateKey) {
                 dayEl.classList.add('active-date');
             }
@@ -185,9 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dayRecord && dayRecord.total_amount > 0) {
                 const totalSpent = dayRecord.total_amount;
                 if (dailyBudget > 0 && totalSpent > dailyBudget) {
-                    dayEl.classList.add('danger'); // Merah (Over Budget)
+                    dayEl.classList.add('danger');
                 } else {
-                    dayEl.classList.add('safe');   // Hijau (Safe)
+                    dayEl.classList.add('safe');
                 }
             }
         });
@@ -239,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Interaksi Klik Kalender Harian (User bisa melihat historis tanggal lain jika diklik)
     calDays.forEach(day => {
         day.addEventListener('click', () => {
             if (day.classList.contains('other-month')) return;
@@ -276,17 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!amount) { alert("Masukkan nominal pengeluaran!"); return; }
 
-            // REVISI UTAMA: Tanggal pengeluaran SELALU mengikuti hari ini (real-time), 
-            // terlepas tanggal berapa yang sedang disorot/diklik user di kalender.
-            const todayDateKey = `${currentYear}-${currentMonthNum}-${currentDayNum}`;
-
             const payload = {
                 action: "add_expense",
                 user_id: userId,
                 amount: parseFloat(amount),
                 category: selectedCategory,
                 note: note,
-                date: todayDateKey 
+                date: selectedDateKey
             };
 
             try {
@@ -303,9 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('expense-amount').value = "";
                     document.getElementById('expense-note').value = "";
                     alert(result.message);
-                    
-                    // Kembalikan selectedDateKey menyorot hari ini agar langsung terlihat di kalender & list
-                    selectedDateKey = todayDateKey;
                     fetchDashboardData();
                 } else {
                     alert(result.message);
