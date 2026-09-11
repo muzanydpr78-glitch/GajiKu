@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Konfigurasi URL Backend GAS ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbwVq5FGY_40C03WxwV4arPwC_EuHaUtLNjqsaNbJBJSybzcZ8QWZ03d5AEpD3B9ui8/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyN-rVJ7BP1cKiuyhbA300Np8ll4PV-rR0UAJhXcwI2qXyU5rs3y9fV019PsBoBt_S4/exec";
 
     // --- Elements ---
     const landingPage = document.getElementById('landing-page');
