@@ -139,7 +139,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === "success") {
-                document.getElementById('display-daily-budget').textContent = `Rp ${result.daily_budget.toLocaleString('id-ID')}`;
+                const dailyBudgetEl = document.getElementById('display-daily-budget');
+const currentDailyVal = result.daily_budget;
+dailyBudgetEl.textContent = `Rp ${currentDailyVal.toLocaleString('id-ID')}`;
+
+if (currentDailyVal < 0) {
+    dailyBudgetEl.className = "budget-amount danger-text"; // Berubah merah jika minus
+} else {
+    dailyBudgetEl.className = "budget-amount safe-text";   // Hijau jika masih aman
+}
                 document.getElementById('display-total-expense').textContent = `Rp ${result.total_expense.toLocaleString('id-ID')}`;
                 document.getElementById('display-total-balance').textContent = `Rp ${result.total_balance.toLocaleString('id-ID')}`;
 
