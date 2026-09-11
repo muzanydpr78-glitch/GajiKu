@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DailyBudget</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
     <div class="app-container">
 
@@ -60,8 +57,7 @@
                 </div>
 
                 <div class="auth-switch">
-                    <p id="switch-text">Belum punya akun? <span id="toggle-auth-mode" class="accent-blue">Daftar
-                            sekarang</span></p>
+                    <p id="switch-text">Belum punya akun? <span id="toggle-auth-mode" class="accent-blue">Daftar sekarang</span></p>
                 </div>
                 <button class="btn-text mt-10" id="back-to-landing"><i class="ph ph-arrow-left"></i> Kembali</button>
             </div>
@@ -71,7 +67,7 @@
         <div id="main-app" class="view-section hidden fade-in">
 
             <header class="app-header">
-                <div class="profile-brief">Halo, Muz!</div>
+                <div class="profile-brief" id="user-greeting">Halo, Muz!</div>
                 <div class="payday-countdown">Atur Tanggal Gajian</div>
             </header>
 
@@ -81,21 +77,19 @@
                 <div id="tab-home" class="tab-content active fade-in">
                     <section class="hero-card glass-panel">
                         <h2>Budget Hari Ini</h2>
-                        <h1 class="budget-amount safe-text">Rp 0</h1>
+                        <h1 class="budget-amount safe-text" id="display-daily-budget">Rp 0</h1>
                         <div class="progress-container">
-                            <div class="progress-bar" style="width: 0%;"></div>
+                            <div class="progress-bar" id="budget-progress-bar" style="width: 0%;"></div>
                         </div>
                         <div class="secondary-info">
-                            <div class="info-box"><span class="label">Pengeluaran</span><span class="value">Rp 0</span>
-                            </div>
-                            <div class="info-box text-right"><span class="label">Total Saldo</span><span
-                                    class="value">Rp 0</span></div>
+                            <div class="info-box"><span class="label">Pengeluaran</span><span class="value" id="display-total-expense">Rp 0</span></div>
+                            <div class="info-box text-right"><span class="label">Total Saldo</span><span class="value" id="display-total-balance">Rp 0</span></div>
                         </div>
                     </section>
                     <section class="quick-actions">
                         <div class="action-card glass-panel">
                             <span class="label">Surplus Kemarin</span>
-                            <span class="value accent-blue">Rp 0</span>
+                            <span class="value accent-blue" id="display-surplus">Rp 0</span>
                         </div>
                     </section>
                 </div>
@@ -129,24 +123,11 @@
                             <div class="cal-day active-date" data-date="10">10</div>
                             <div class="cal-day" data-date="11">11</div>
                             <div class="cal-day" data-date="12">12</div>
-                            <div class="cal-day">13</div>
-                            <div class="cal-day">14</div>
-                            <div class="cal-day">15</div>
-                            <div class="cal-day">16</div>
-                            <div class="cal-day">17</div>
-                            <div class="cal-day">18</div>
-                            <div class="cal-day">19</div>
-                            <div class="cal-day">20</div>
-                            <div class="cal-day">21</div>
-                            <div class="cal-day">22</div>
-                            <div class="cal-day">23</div>
-                            <div class="cal-day">24</div>
-                            <div class="cal-day">25</div>
-                            <div class="cal-day">26</div>
-                            <div class="cal-day">27</div>
-                            <div class="cal-day">28</div>
-                            <div class="cal-day">29</div>
-                            <div class="cal-day">30</div>
+                            <div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
+                            <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div>
+                            <div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div><div class="cal-day">23</div>
+                            <div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div>
+                            <div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day">30</div>
                         </div>
                     </section>
                     <section class="transaction-history-section">
@@ -163,9 +144,7 @@
 
                 <!-- TAB 3: TARGET -->
                 <div id="tab-target" class="tab-content fade-in hidden">
-                    <section class="page-header">
-                        <h2>Target Finansial</h2>
-                    </section>
+                    <section class="page-header"><h2>Target Finansial</h2></section>
                     <div class="card-list">
                         <button class="btn-secondary mt-10"><i class="ph ph-plus"></i> Tambah Target</button>
                     </div>
@@ -173,17 +152,13 @@
 
                 <!-- TAB 4: SETTING -->
                 <div id="tab-setting" class="tab-content fade-in hidden">
-                    <section class="page-header">
-                        <h2>Pengaturan</h2>
-                    </section>
+                    <section class="page-header"><h2>Pengaturan</h2></section>
                     <div class="card-list">
                         <div class="list-item glass-panel setting-item" id="menu-profile">
-                            <i class="ph ph-user"></i> <span>Profil Akun</span> <i
-                                class="ph ph-caret-right ml-auto"></i>
+                            <i class="ph ph-user"></i> <span>Profil Akun</span> <i class="ph ph-caret-right ml-auto"></i>
                         </div>
                         <div class="list-item glass-panel setting-item" id="menu-salary">
-                            <i class="ph ph-money"></i> <span>Setup Gaji & Alokasi</span> <i
-                                class="ph ph-caret-right ml-auto"></i>
+                            <i class="ph ph-money"></i> <span>Setup Gaji & Alokasi</span> <i class="ph ph-caret-right ml-auto"></i>
                         </div>
                         <div class="list-item glass-panel setting-item text-danger" id="menu-logout">
                             <i class="ph ph-sign-out"></i> <span>Keluar</span>
@@ -245,10 +220,10 @@
                         <button class="btn-text" id="back-to-setting-profile"><i class="ph ph-x"></i> Kembali</button>
                     </section>
                     <div class="card-list">
-                        <div class="glass-panel form-card text-center">
+                        <div class="glass-panel form-card text-center" style="text-align: center; padding: 30px 20px;">
                             <div class="profile-avatar-large">M</div>
-                            <h3 class="mt-10">Muz</h3>
-                            <p class="text-muted text-sm">muz@email.com</p>
+                            <h3 class="mt-10" style="margin-top: 12px; font-weight: 700;">Muz</h3>
+                            <p class="text-muted text-sm" style="margin-top: 4px; color: var(--text-muted);">muz@email.com</p>
                         </div>
                     </div>
                 </div>
@@ -258,10 +233,8 @@
             <!-- Fixed Bottom Navbar -->
             <nav class="bottom-navbar glass-panel">
                 <a href="#" class="nav-item active" data-target="home"><i class="ph ph-house"></i><span>Home</span></a>
-                <a href="#" class="nav-item" data-target="report"><i
-                        class="ph ph-calendar-blank"></i><span>Report</span></a>
-                <div class="fab-container"><button id="fab-add" class="fab-btn"><i class="ph ph-plus"></i></button>
-                </div>
+                <a href="#" class="nav-item" data-target="report"><i class="ph ph-calendar-blank"></i><span>Report</span></a>
+                <div class="fab-container"><button id="fab-add" class="fab-btn"><i class="ph ph-plus"></i></button></div>
                 <a href="#" class="nav-item" data-target="target"><i class="ph ph-target"></i><span>Target</span></a>
                 <a href="#" class="nav-item" data-target="setting"><i class="ph ph-gear"></i><span>Setting</span></a>
             </nav>
@@ -293,5 +266,4 @@
     </div>
     <script src="script.js"></script>
 </body>
-
 </html>
