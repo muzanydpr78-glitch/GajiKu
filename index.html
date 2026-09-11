@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DailyBudget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- ================= LANDING PAGE ================= -->
+        <div id="landing-page" class="view-section active fade-in">
+            <div class="landing-content">
+                <i class="ph ph-wallet landing-logo accent-blue"></i>
+                <h1 class="landing-title">DailyBudget</h1>
+                <p class="landing-subtitle">Kendalikan pengeluaran harianmu sampai gajian berikutnya, tanpa pusing.</p>
+                <div class="landing-btn-group">
+                    <button id="btn-to-login" class="btn-primary">Masuk / Daftar</button>
+                    <button id="btn-start" class="btn-secondary mt-10">Coba sebagai Guest</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= AUTH PAGE (LOGIN / REGISTER) ================= -->
+        <div id="auth-page" class="view-section hidden fade-in">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <i class="ph ph-lock-key auth-icon"></i>
+                    <h2>Selamat Datang</h2>
+                    <p>Masuk atau buat akun untuk menyimpan data finansialmu.</p>
+                </div>
+
+                <button id="btn-google-login" class="btn-google">
+                    <i class="ph ph-google-logo"></i> Lanjutkan dengan Google
+                </button>
+
+                <div class="auth-divider">
+                    <span>atau dengan email</span>
+                </div>
+
+                <div class="glass-panel form-card">
+                    <div id="register-fields" class="hidden">
+                        <label class="input-label">Nama Lengkap</label>
+                        <input type="text" id="reg-name" placeholder="Muz">
+                    </div>
+
+                    <label class="input-label">Email</label>
+                    <input type="email" id="auth-email" placeholder="nama@email.com">
+
+                    <label class="input-label">Password</label>
+                    <input type="password" id="auth-password" placeholder="••••••••">
+
+                    <button id="btn-auth-submit" class="btn-primary mt-20">Masuk</button>
+                </div>
+
+                <div class="auth-switch">
+                    <p id="switch-text">Belum punya akun? <span id="toggle-auth-mode" class="accent-blue">Daftar
+                            sekarang</span></p>
+                </div>
+                <button class="btn-text mt-10" id="back-to-landing"><i class="ph ph-arrow-left"></i> Kembali</button>
+            </div>
+        </div>
+
+        <!-- ================= MAIN APP LAYOUT ================= -->
+        <div id="main-app" class="view-section hidden fade-in">
+
+            <header class="app-header">
+                <div class="profile-brief">Halo, Muz!</div>
+                <div class="payday-countdown">12 Hari menuju gajian</div>
+            </header>
+
+            <main id="main-content">
+
+                <!-- TAB 1: HOME -->
+                <div id="tab-home" class="tab-content active fade-in">
+                    <section class="hero-card glass-panel">
+                        <h2>Budget Hari Ini</h2>
+                        <h1 class="budget-amount safe-text">Rp 35.000</h1>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 20%;"></div>
+                        </div>
+                        <div class="secondary-info">
+                            <div class="info-box"><span class="label">Pengeluaran</span><span class="value">Rp
+                                    10.000</span></div>
+                            <div class="info-box text-right"><span class="label">Total Saldo</span><span
+                                    class="value">Rp 964.000</span></div>
+                        </div>
+                    </section>
+                    <section class="quick-actions">
+                        <div class="action-card glass-panel">
+                            <span class="label">Surplus Kemarin</span>
+                            <span class="value accent-blue">+ Rp 15.000</span>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- TAB 2: REPORT -->
+                <div id="tab-report" class="tab-content fade-in hidden">
+                    <section class="page-header">
+                        <h2>Laporan Bulanan</h2>
+                        <div class="month-selector">
+                            <button class="month-nav-btn"><i class="ph ph-caret-left"></i></button>
+                            <span class="current-month">September 2026</span>
+                            <button class="month-nav-btn"><i class="ph ph-caret-right"></i></button>
+                        </div>
+                    </section>
+                    <section class="calendar-section glass-panel">
+                        <div class="cal-days-header">
+                            <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+                        </div>
+                        <div class="cal-grid" id="cal-grid">
+                            <div class="cal-day other-month">29</div>
+                            <div class="cal-day other-month">30</div>
+                            <div class="cal-day safe" data-date="1">1</div>
+                            <div class="cal-day safe" data-date="2">2</div>
+                            <div class="cal-day safe" data-date="3">3</div>
+                            <div class="cal-day warning" data-date="4">4</div>
+                            <div class="cal-day safe" data-date="5">5</div>
+                            <div class="cal-day safe" data-date="6">6</div>
+                            <div class="cal-day danger" data-date="7">7</div>
+                            <div class="cal-day safe" data-date="8">8</div>
+                            <div class="cal-day safe" data-date="9">9</div>
+                            <div class="cal-day active-date" data-date="10">10</div>
+                            <div class="cal-day" data-date="11">11</div>
+                            <div class="cal-day" data-date="12">12</div>
+                            <div class="cal-day">13</div>
+                            <div class="cal-day">14</div>
+                            <div class="cal-day">15</div>
+                            <div class="cal-day">16</div>
+                            <div class="cal-day">17</div>
+                            <div class="cal-day">18</div>
+                            <div class="cal-day">19</div>
+                            <div class="cal-day">20</div>
+                            <div class="cal-day">21</div>
+                            <div class="cal-day">22</div>
+                            <div class="cal-day">23</div>
+                            <div class="cal-day">24</div>
+                            <div class="cal-day">25</div>
+                            <div class="cal-day">26</div>
+                            <div class="cal-day">27</div>
+                            <div class="cal-day">28</div>
+                            <div class="cal-day">29</div>
+                            <div class="cal-day">30</div>
+                        </div>
+                    </section>
+                    <section class="transaction-history-section">
+                        <div class="history-header">
+                            <h3>Transaksi Tanggal <span id="selected-date-label">10 Sep 2026</span></h3>
+                        </div>
+                        <div class="card-list" id="daily-transaction-list">
+                            <div class="list-item glass-panel">
+                                <div class="item-icon"><i class="ph ph-pizza"></i></div>
+                                <div class="item-details">
+                                    <h4>Makan Siang</h4>
+                                    <p>Makan Padang</p>
+                                </div>
+                                <div class="item-value danger-text">- Rp 25.000</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- TAB 3: TARGET -->
+                <div id="tab-target" class="tab-content fade-in hidden">
+                    <section class="page-header">
+                        <h2>Target Finansial</h2>
+                    </section>
+                    <div class="card-list">
+                        <div class="list-item glass-panel flex-col">
+                            <div class="target-head">
+                                <h4>Dana Darurat</h4>
+                                <span class="value safe-text">Rp 5.000.000</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 45%;"></div>
+                            </div>
+                            <p class="target-subtext">Terkumpul: Rp 2.250.000</p>
+                        </div>
+                        <button class="btn-secondary mt-10"><i class="ph ph-plus"></i> Tambah Target</button>
+                    </div>
+                </div>
+
+                <!-- TAB 4: SETTING -->
+                <div id="tab-setting" class="tab-content fade-in hidden">
+                    <section class="page-header">
+                        <h2>Pengaturan</h2>
+                    </section>
+                    <div class="card-list">
+                        <div class="list-item glass-panel setting-item" id="menu-profile">
+                            <i class="ph ph-user"></i> <span>Profil Akun</span> <i
+                                class="ph ph-caret-right ml-auto"></i>
+                        </div>
+                        <div class="list-item glass-panel setting-item" id="menu-salary">
+                            <i class="ph ph-money"></i> <span>Setup Gaji & Alokasi</span> <i
+                                class="ph ph-caret-right ml-auto"></i>
+                        </div>
+                        <div class="list-item glass-panel setting-item text-danger" id="menu-logout">
+                            <i class="ph ph-sign-out"></i> <span>Keluar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEW: ADD TARGET -->
+                <div id="sub-add-target" class="tab-content fade-in hidden">
+                    <section class="page-header flex-between">
+                        <h2>Tambah Target Baru</h2>
+                        <button class="btn-text" id="back-to-target"><i class="ph ph-x"></i> Batal</button>
+                    </section>
+                    <div class="card-list">
+                        <div class="glass-panel form-card">
+                            <label class="input-label">Nama Target</label>
+                            <input type="text" placeholder="Cth: Liburan ke Jepang">
+                            <label class="input-label">Target Nominal (Rp)</label>
+                            <input type="number" placeholder="5.000.000">
+                            <label class="input-label">Sudah Terkumpul Saat Ini (Rp)</label>
+                            <input type="number" placeholder="0">
+                            <label class="input-label">Target Tanggal Selesai</label>
+                            <input type="date" class="input-date">
+                            <button class="btn-primary mt-20">Simpan Target</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEW: SETUP GAJI -->
+                <div id="sub-salary-setup" class="tab-content fade-in hidden">
+                    <section class="page-header flex-between">
+                        <h2>Setup Gaji & Alokasi</h2>
+                        <button class="btn-text" id="back-to-setting"><i class="ph ph-x"></i> Kembali</button>
+                    </section>
+                    <div class="card-list">
+                        <div class="glass-panel form-card">
+                            <h3 class="section-subheading">Pendapatan Bulanan</h3>
+                            <label class="input-label">Total Gaji / Pendapatan (Rp)</label>
+                            <input type="number" value="4400000">
+                            <label class="input-label">Tanggal Gajian Berikutnya</label>
+                            <input type="date" class="input-date" value="2026-09-22">
+                            <h3 class="section-subheading mt-20">Alokasi Wajib</h3>
+                            <div class="allocation-group">
+                                <div class="alloc-row">
+                                    <input type="text" value="Dana Darurat" class="alloc-input">
+                                    <input type="number" value="1000000" class="alloc-input">
+                                </div>
+                            </div>
+                            <button class="btn-secondary mt-10">+ Tambah Alokasi</button>
+                            <button class="btn-primary mt-20">Simpan Perubahan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEW: PROFIL -->
+                <div id="sub-profile" class="tab-content fade-in hidden">
+                    <section class="page-header flex-between">
+                        <h2>Profil Akun</h2>
+                        <button class="btn-text" id="back-to-setting-profile"><i class="ph ph-x"></i> Kembali</button>
+                    </section>
+                    <div class="card-list">
+                        <div class="glass-panel form-card text-center">
+                            <div class="profile-avatar-large">M</div>
+                            <h3 class="mt-10">Muz</h3>
+                            <p class="text-muted text-sm">muz@email.com</p>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- Fixed Bottom Navbar -->
+            <nav class="bottom-navbar glass-panel">
+                <a href="#" class="nav-item active" data-target="home"><i class="ph ph-house"></i><span>Home</span></a>
+                <a href="#" class="nav-item" data-target="report"><i
+                        class="ph ph-calendar-blank"></i><span>Report</span></a>
+                <div class="fab-container"><button id="fab-add" class="fab-btn"><i class="ph ph-plus"></i></button>
+                </div>
+                <a href="#" class="nav-item" data-target="target"><i class="ph ph-target"></i><span>Target</span></a>
+                <a href="#" class="nav-item" data-target="setting"><i class="ph ph-gear"></i><span>Setting</span></a>
+            </nav>
+        </div>
+
+        <!-- Bottom Sheet Modal -->
+        <div id="expense-modal" class="bottom-sheet">
+            <div class="sheet-header">
+                <div class="drag-handle"></div>
+                <h3>Catat Pengeluaran</h3>
+            </div>
+            <div class="sheet-content">
+                <input type="number" id="expense-amount" placeholder="Nominal (Rp)" autofocus>
+                <p class="category-label">Pilih Kategori</p>
+                <div class="category-grid">
+                    <div class="cat-item active"><i class="ph ph-pizza"></i> Makan</div>
+                    <div class="cat-item"><i class="ph ph-car-profile"></i> Transport</div>
+                    <div class="cat-item"><i class="ph ph-shopping-cart"></i> Belanja</div>
+                    <div class="cat-item"><i class="ph ph-lightning"></i> Tagihan</div>
+                    <div class="cat-item"><i class="ph ph-film-strip"></i> Hiburan</div>
+                    <div class="cat-item"><i class="ph ph-dots-three"></i> Lainnya</div>
+                </div>
+                <input type="text" id="expense-note" placeholder="Catatan opsional...">
+                <button id="btn-save-expense" class="btn-primary">Simpan</button>
+            </div>
+        </div>
+        <div id="modal-overlay" class="overlay"></div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
