@@ -200,15 +200,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayNumStr = dayAttr.padStart(2, '0');
             const dateKey = `${currentYear}-${currentMonthNum}-${dayNumStr}`;
 
+            // Bersihkan kelas status sebelumnya
             dayEl.classList.remove('safe', 'danger', 'active-date');
 
+            // Tandai tanggal yang sedang aktif dipilih
             if (dateKey === selectedDateKey) {
                 dayEl.classList.add('active-date');
             }
 
+            // Periksa apakah ada pengeluaran di tanggal ini
             const dayRecord = dailyTransactions[dateKey];
             if (dayRecord && dayRecord.total_amount > 0) {
                 const totalSpent = dayRecord.total_amount;
+                
+                // Validasi tegas: Jika pengeluaran > base daily budget, wajib WARNA MERAH (danger)
                 if (baseDailyBudget > 0 && totalSpent > baseDailyBudget) {
                     dayEl.classList.add('danger');
                 } else {
