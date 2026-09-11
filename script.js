@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Konfigurasi URL Backend GAS ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbyN-rVJ7BP1cKiuyhbA300Np8ll4PV-rR0UAJhXcwI2qXyU5rs3y9fV019PsBoBt_S4/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwVq5FGY_40C03WxwV4arPwC_EuHaUtLNjqsaNbJBJSybzcZ8QWZ03d5AEpD3B9ui8/exec";
 
     // --- Elements ---
     const landingPage = document.getElementById('landing-page');
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isRegisterMode = false;
 
-    // --- Pastikan Saat Pertama Buka Selalu di Landing Page (Bukan Main App) ---
+    // --- Inisialisasi Tampilan Awal ---
     const initApp = () => {
         landingPage.classList.remove('hidden');
         landingPage.classList.add('active');
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     initApp();
 
-    // --- Navigation Flow (Landing to Auth / Guest) ---
+    // --- Navigation Flow ---
     if (btnToLogin) {
         btnToLogin.addEventListener('click', () => {
             landingPage.classList.remove('active');
@@ -72,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Logout Feature ---
     if (menuLogout) {
         menuLogout.addEventListener('click', () => {
             localStorage.clear();
@@ -80,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Auth Toggle (Login vs Register) ---
+    // --- Auth Toggle ---
     if (toggleAuthMode) {
         toggleAuthMode.addEventListener('click', () => {
             isRegisterMode = !isRegisterMode;
@@ -115,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnAuthSubmit.textContent = "Memproses...";
                 const response = await fetch(API_URL, {
                     method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Main App Navigation (Tabs) ---
+    // --- Main App Navigation ---
     navItems.forEach(nav => {
         nav.addEventListener('click', (e) => {
             e.preventDefault();
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- API Integration: Save Expense ---
+    // --- API Integration: Save Expense (Fixed with Proper Request Body) ---
     if (btnSaveExpense) {
         btnSaveExpense.addEventListener('click', async () => {
             const amount = document.getElementById('expense-amount').value;
@@ -233,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnSaveExpense.textContent = "Menyimpan...";
                 const response = await fetch(API_URL, {
                     method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
@@ -243,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('expense-note').value = "";
                     alert("Pengeluaran berhasil dicatat secara privat!");
                 } else {
-                    alert("Gagal menyimpan pengeluaran.");
+                    alert(result.message || "Gagal menyimpan pengeluaran.");
                 }
             } catch (error) {
                 console.error("Error Expense:", error);
@@ -254,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Sub-Views Navigation (Target, Profile, Salary Setup) ---
+    // --- Sub-Views Navigation ---
     const showSubView = (subViewId) => {
         tabContents.forEach(tab => {
             tab.classList.add('hidden');
